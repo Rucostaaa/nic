@@ -81,31 +81,36 @@ export const deleteImage = async (req, res) => {
   }
 };
 
-
 export const editImage = async (req, res) => {
-   console.log("File received:", req.file,req.body);
+  console.log("File received:", req.file, req.body);
 
   try {
     const { id } = req.params;
 
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-
     const image = await Image.findById(id);
     if (!image) return res.status(404).json({ message: 'Image not found' });
- console.log('Params:', req.params);
-    console.log('File:', req.file);
-    console.log('Body:', req.body);
 
-    await cloudinary.uploader.destroy(image.public_id);
+    // ---------- Update featured ----------
+    if (req.body.featured) {
+      image.featured = req.body.featured;
+    }
 
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: image.category.charAt(0).toUpperCase() + image.category.slice(1) + 'Cleaning',
-    });
+    // ---------- Update image file if uploaded ----------
+    if (req.file) {
+      // Delete old image from Cloudinary
+      await cloudinary.uploader.destroy(image.public_id);
 
-    fs.unlinkSync(req.file.path);
+      // Upload new image
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: image.category.charAt(0).toUpperCase() + image.category.slice(1) + 'Cleaning',
+      });
 
-    image.url = result.secure_url;
-    image.public_id = result.public_id;
+      fs.unlinkSync(req.file.path);
+
+      image.url = result.secure_url;
+      image.public_id = result.public_id;
+    }
+
     await image.save();
 
     res.json({ message: 'Image updated successfully', ...image.toObject() });
@@ -114,7 +119,6 @@ export const editImage = async (req, res) => {
     res.status(500).json({ message: 'Failed to update image', error: err.message });
   }
 };
-
 export const replaceLogo = async (req, res) => {
 
   
