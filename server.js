@@ -12,8 +12,8 @@ app.use('/api/statics', staticsRoutes);
 app.use('/api/admin',express.json(), adminRoutes);
 app.use('/api/twilio',express.json(), twilioRoutes);
 
-console.log("Mongo",process.env.MONGO_URI);
-
+console.log('Mongo URI:', MONGO_URI);
+console.log('Port:', PORT);
 // MongoDB connection
 const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 5000;
