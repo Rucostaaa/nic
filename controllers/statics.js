@@ -64,6 +64,8 @@ export const getCategoryImage = async (req, res) => {
 };
 
 export const deleteImage = async (req, res) => {
+   console.log("File received:", req.file,req.body);
+
   try {
     const { id } = req.params;
     const image = await Image.findById(id);
@@ -81,6 +83,8 @@ export const deleteImage = async (req, res) => {
 
 
 export const editImage = async (req, res) => {
+   console.log("File received:", req.file,req.body);
+
   try {
     const { id } = req.params;
 
