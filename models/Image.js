@@ -3,12 +3,16 @@ import mongoose from'mongoose';
 const imageSchema = new mongoose.Schema({
   category: {
     type: String,
-    enum: ["office","comercial","kitchen","oven", "window", "outdoor", "residential"],
+    enum: ["office","commercial","kitchen","oven", "window", "outdoor", "residential"],
     required: true
   },
   url: {
     type: String,
     required: true
+  },
+  category_id:{
+    type: mongoose.Types.ObjectId,
+    ref:'Service'
   },
   public_id: {
     type: String,

@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.js';
 import staticsRoutes from './routes/statics.js';
 import adminRoutes from './routes/admin.js';
 import twilioRoutes from './routes/twilio.js';
+import servicesRoutes from './routes/services.js';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/statics', staticsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/twilio', twilioRoutes);
+app.use('/api/services', servicesRoutes);
 
 // MongoDB connection
 mongoose.connect(MONGO_URI)

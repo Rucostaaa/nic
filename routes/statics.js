@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { getCategoryImage, uploadImage, deleteImage, editImage ,replaceLogo} from '../controllers/statics.js';
+import { getCategoryImage, uploadImage,getBusinessInfo, deleteImage, editImage ,replaceLogo} from '../controllers/statics.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'tmp/' });
@@ -16,6 +16,7 @@ router.get('/images/:category', getCategoryImage);
 
 // Delete image
 router.delete('/image/:id', deleteImage);
+router.get('/business-info',getBusinessInfo);
 
 router.put('/business-info/logo', upload.single('logo'),replaceLogo);
 

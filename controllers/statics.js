@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-const validCategories = ['office','comercial','kitchen','oven','residential','window','outdoor'];
+const validCategories = ['office','commercial','kitchen','oven','residential','window','outdoor'];
 
 export const uploadImage = async (req, res) => {
   try {
@@ -65,6 +65,7 @@ export const getCategoryImage = async (req, res) => {
 
 export const deleteImage = async (req, res) => {
    console.log("File received:", req.file,req.body);
+     console.log("Params:", req.params,req.body);
 
   try {
     const { id } = req.params;
@@ -163,5 +164,21 @@ export const replaceLogo = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update logo", error: err.message });
+  }
+};
+
+export const getBusinessInfo = async (req, res) => {
+  try {
+    // Find the admin with role 'Admin'
+    const admin = await Admin.findOne({}).select("businessInfo");
+    
+    if (!admin) {
+      return res.status(404).json({ message: "Info not found" });
+    }
+
+    res.status(200).json(admin.businessInfo);
+  } catch (error) {
+    console.error("Error fetching business info:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
