@@ -11,7 +11,6 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-const validCategories = ['office','commercial','kitchen','oven','residential','window','outdoor'];
 
 export const uploadImage = async (req, res) => {
   try {
@@ -25,7 +24,6 @@ export const uploadImage = async (req, res) => {
     console.log('Body:', req.body);
 
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    if (!validCategories.includes(category)) return res.status(400).json({ message: 'Invalid category' });
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: category.charAt(0).toUpperCase() + category.slice(1) + 'Cleaning',
