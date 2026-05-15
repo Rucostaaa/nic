@@ -51,10 +51,9 @@ export const uploadImage = async (req, res) => {
 export const getCategoryImage = async (req, res) => {
   try {
     const { category } = req.params;
-    if (!validCategories.includes(category)) return res.status(400).json({ message: 'Invalid category' });
 
     const images = await Image.find({ category });
-    res.json(images);
+    res.status(200).json(images);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Failed to fetch images', error: err.message });
