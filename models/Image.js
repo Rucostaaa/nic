@@ -19,7 +19,7 @@ const imageSchema = new mongoose.Schema({
   },
   featured: {
     type: String,
-    enum: ["gallery","header","featured"],
+    enum: ["gallery","header","featured",'icon'],
     default:"gallery",
     required: true
   },

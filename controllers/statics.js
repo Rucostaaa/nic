@@ -19,9 +19,6 @@ export const uploadImage = async (req, res) => {
     
     const featuredType = req.body?.featured || 'gallery';
 
-    console.log('Params:', req.params);
-    console.log('File:', req.file);
-    console.log('Body:', req.body);
 
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
@@ -80,8 +77,8 @@ export const deleteImage = async (req, res) => {
 };
 
 export const editImage = async (req, res) => {
-  console.log("File received:", req.file, req.body);
-
+  console.log("here:", req.body);
+  
   try {
     const { id } = req.params;
 
