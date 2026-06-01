@@ -30,6 +30,7 @@ export const getSingleCategory = async (req, res) => {
 export const createCategory = async (req, res) => {
   try {
     const { title, slug, texts, services } = req.body;
+    console.log(services);
 
     // Validation
     if (!title || !slug || !texts) {
@@ -66,11 +67,11 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, texts, status, services } = req.body;
+    const { title, texts, status, slug, services } = req.body;
 
     const updatedService = await Service.findByIdAndUpdate(
       id,
-      { title, texts, status, services },
+      { title, texts, status, services, slug },
       { new: true, runValidators: true },
     );
 
