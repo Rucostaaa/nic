@@ -3,6 +3,8 @@ import fs from "fs";
 import Image from "../models/Image.js";
 import dotenv from "dotenv";
 import Admin from "../models/Admin.js";
+import Service from "../models/Service.js";
+
 dotenv.config();
 
 cloudinary.config({
