@@ -183,17 +183,37 @@ export const getBusinessInfo = async (req, res) => {
 };
 export const getDashboardData = async (req, res) => {
   try {
-    // Find the admin with role 'Admin'
     const admin = await Admin.findOne({}).select("businessInfo");
-    const services = await Service.find({ status: { $ne: "deleted" } }); // skip deleted
-    const images = await Image.find();
+
+    const services = await Service.find({
+      status: { $ne: "deleted" },
+    });
+
+    // =========================
+    // FEATURED IMAGES (15)
+    // =========================
+    const featuredImages = await Image.find({
+      featured: "featured",
+    }).limit(15);
+
+    // =========================
+    // ICON IMAGES (6)
+    // =========================
+    const iconImages = await Image.find({
+      featured: "icon",
+    }).limit(6);
+
     if (!admin) {
       return res.status(404).json({ message: "Info not found" });
     }
 
-    res
-      .status(200)
-      .json({ businessInfo: admin.businessInfo, images, services });
+    return res.status(200).json({
+      businessInfo: admin.businessInfo,
+      services,
+
+      featuredIamges: featuredImages,
+      iconImages: iconImages,
+    });
   } catch (error) {
     console.error("Error fetching business info:", error);
     res.status(500).json({ message: "Server error" });
