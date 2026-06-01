@@ -43,41 +43,19 @@ export const uploadImage = async (req, res) => {
 export const getCategoryImage = async (req, res) => {
   try {
     const { category } = req.params;
-    const { type, group } = req.query;
-    // type = featured | gallery | header
-    // group = true → return grouped response
-
     const query = { category };
-
-    // =========================
-    // FILTER BY TYPE (OPTIONAL)
-    // =========================
-    if (type) {
-      query.featured = type;
-    }
-
     const images = await Image.find(query);
-
     // =========================
     // GROUPED RESPONSE MODE
     // =========================
-    if (group === "true") {
-      const grouped = {
-        featured: images.filter((img) => img.featured === "featured"),
-        gallery: images.filter((img) => img.featured === "gallery"),
-        header: images.filter((img) => img.featured === "header"),
-      };
 
-      return res.status(200).json(grouped);
-    }
+    const grouped = {
+      featured: images.filter((img) => img.featured === "featured"),
+      gallery: images.filter((img) => img.featured === "gallery"),
+      header: images.filter((img) => img.featured === "header"),
+    };
 
-    // =========================
-    // DEFAULT RESPONSE
-    // =========================
-    return res.status(200).json({
-      count: images.length,
-      images,
-    });
+    return res.status(200).json({ count: grouped.length, grouped });
   } catch (err) {
     console.error(err);
     res.status(500).json({
@@ -185,12 +163,10 @@ export const replaceLogo = async (req, res) => {
     await admin.save();
     console.log("saved");
 
-    res
-      .status(200)
-      .json({
-        message: "Logo updated successfully",
-        logo: admin.businessInfo.logo,
-      });
+    res.status(200).json({
+      message: "Logo updated successfully",
+      logo: admin.businessInfo.logo,
+    });
   } catch (err) {
     console.error(err);
     res
