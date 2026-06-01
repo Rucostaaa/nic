@@ -211,7 +211,7 @@ export const getDashboardData = async (req, res) => {
       businessInfo: admin.businessInfo,
       services,
 
-      featuredIamges: featuredImages,
+      featuredImages: featuredImages,
       iconImages: iconImages,
     });
   } catch (error) {
