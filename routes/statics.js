@@ -1,23 +1,32 @@
-import express from 'express';
-import multer from 'multer';
-import { getCategoryImage, uploadImage,getBusinessInfo, deleteImage, editImage ,replaceLogo} from '../controllers/statics.js';
+import express from "express";
+import multer from "multer";
+import {
+  getCategoryImage,
+  uploadImage,
+  getBusinessInfo,
+  deleteImage,
+  editImage,
+  replaceLogo,
+  getDashboardData,
+} from "../controllers/statics.js";
 
 const router = express.Router();
-const upload = multer({ dest: 'tmp/' });
+const upload = multer({ dest: "tmp/" });
 
+router.get("/dashboard-data", getDashboardData);
 // Upload new image
-router.post('/upload/:category', upload.single('image'), uploadImage);
+router.post("/upload/:category", upload.single("image"), uploadImage);
 
 // Edit existing image
-router.put('/image/:id', upload.single('image'), editImage);
+router.put("/image/:id", upload.single("image"), editImage);
 
 // Get images by category
-router.get('/images/:category', getCategoryImage);
+router.get("/images/:category", getCategoryImage);
 
 // Delete image
-router.delete('/image/:id', deleteImage);
-router.get('/business-info',getBusinessInfo);
+router.delete("/image/:id", deleteImage);
+router.get("/business-info", getBusinessInfo);
 
-router.put('/business-info/logo', upload.single('logo'),replaceLogo);
+router.put("/business-info/logo", upload.single("logo"), replaceLogo);
 
 export default router;

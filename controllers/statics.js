@@ -3,6 +3,8 @@ import fs from "fs";
 import Image from "../models/Image.js";
 import dotenv from "dotenv";
 import Admin from "../models/Admin.js";
+import Service from "../models/Service.js";
+
 dotenv.config();
 
 cloudinary.config({
@@ -188,5 +190,30 @@ export const getBusinessInfo = async (req, res) => {
   } catch (error) {
     console.error("Error fetching business info:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+export const getDashboardData = async (req, res) => {
+  try {
+    // Run all queries in parallel (faster)
+    const [admin, services, featuredImages, iconImages] = await Promise.all([
+      Admin.findOne({}).select("businessInfo"),
+      Service.find({ status: { $ne: "deleted" } }),
+      Image.find({ featured: "featured" }).limit(15),
+      Image.find({ featured: "icon" }).limit(6),
+    ]);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Info not found" });
+    }
+
+    return res.status(200).json({
+      businessInfo: admin.businessInfo,
+      services,
+      featuredImages,
+      iconImages,
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
