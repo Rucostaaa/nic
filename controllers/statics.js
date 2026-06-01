@@ -1,8 +1,8 @@
-import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
-import Image from '../models/Image.js';
-import dotenv from 'dotenv';
-import Admin from '../models/Admin.js';
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+import Image from "../models/Image.js";
+import dotenv from "dotenv";
+import Admin from "../models/Admin.js";
 dotenv.config();
 
 cloudinary.config({
@@ -11,19 +11,16 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-
 export const uploadImage = async (req, res) => {
   try {
-    const { category    } = req.params;
+    const { category } = req.params;
 
-    
-    const featuredType = req.body?.featured || 'gallery';
+    const featuredType = req.body?.featured || "gallery";
 
-
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
     const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: category.charAt(0).toUpperCase() + category.slice(1) + 'Cleaning',
+      folder: category.charAt(0).toUpperCase() + category.slice(1) + "Cleaning",
     });
 
     fs.unlinkSync(req.file.path);
@@ -36,54 +33,89 @@ export const uploadImage = async (req, res) => {
     });
 
     await image.save();
-    res.json({ message: 'Image uploaded successfully', ...image.toObject() });
+    res.json({ message: "Image uploaded successfully", ...image.toObject() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Upload failed', error: err.message });
+    res.status(500).json({ message: "Upload failed", error: err.message });
   }
 };
-
-
 
 export const getCategoryImage = async (req, res) => {
   try {
     const { category } = req.params;
+    const { type, group } = req.query;
+    // type = featured | gallery | header
+    // group = true → return grouped response
 
-    const images = await Image.find({ category });
-    res.status(200).json(images);
+    const query = { category };
+
+    // =========================
+    // FILTER BY TYPE (OPTIONAL)
+    // =========================
+    if (type) {
+      query.featured = type;
+    }
+
+    const images = await Image.find(query);
+
+    // =========================
+    // GROUPED RESPONSE MODE
+    // =========================
+    if (group === "true") {
+      const grouped = {
+        featured: images.filter((img) => img.featured === "featured"),
+        gallery: images.filter((img) => img.featured === "gallery"),
+        header: images.filter((img) => img.featured === "header"),
+      };
+
+      return res.status(200).json(grouped);
+    }
+
+    // =========================
+    // DEFAULT RESPONSE
+    // =========================
+    return res.status(200).json({
+      count: images.length,
+      images,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to fetch images', error: err.message });
+    res.status(500).json({
+      message: "Failed to fetch images",
+      error: err.message,
+    });
   }
 };
 
 export const deleteImage = async (req, res) => {
-   console.log("File received:", req.file,req.body);
-     console.log("Params:", req.params,req.body);
+  console.log("File received:", req.file, req.body);
+  console.log("Params:", req.params, req.body);
 
   try {
     const { id } = req.params;
     const image = await Image.findById(id);
-    if (!image) return res.status(404).json({ message: 'Image not found' });
+    if (!image) return res.status(404).json({ message: "Image not found" });
 
     await cloudinary.uploader.destroy(image.public_id);
     await image.deleteOne();
 
-    res.json({ message: 'Image deleted successfully' });
+    res.json({ message: "Image deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to delete image', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to delete image", error: err.message });
   }
 };
 
 export const editImage = async (req, res) => {
   console.log("here:", req.body);
-  
+
   try {
     const { id } = req.params;
 
     const image = await Image.findById(id);
-    if (!image) return res.status(404).json({ message: 'Image not found' });
+    if (!image) return res.status(404).json({ message: "Image not found" });
 
     // ---------- Update featured ----------
     if (req.body.featured) {
@@ -97,7 +129,10 @@ export const editImage = async (req, res) => {
 
       // Upload new image
       const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: image.category.charAt(0).toUpperCase() + image.category.slice(1) + 'Cleaning',
+        folder:
+          image.category.charAt(0).toUpperCase() +
+          image.category.slice(1) +
+          "Cleaning",
       });
 
       fs.unlinkSync(req.file.path);
@@ -108,25 +143,22 @@ export const editImage = async (req, res) => {
 
     await image.save();
 
-    res.json({ message: 'Image updated successfully', ...image.toObject() });
+    res.json({ message: "Image updated successfully", ...image.toObject() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to update image', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update image", error: err.message });
   }
 };
 export const replaceLogo = async (req, res) => {
-
-  
   try {
     const admin = await Admin.findOne();
-    
+
     if (!admin) return res.status(404).json({ message: "Admin not found" });
- console.log("File received:", req.file,req.body);
-        console.log("File received:", req.body);
+    console.log("File received:", req.file, req.body);
+    console.log("File received:", req.body);
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-
-   
-
 
     // Optional: delete old logo from Cloudinary if stored there
     if (admin.businessInfo.logoPublicId) {
@@ -143,7 +175,6 @@ export const replaceLogo = async (req, res) => {
       use_filename: true,
       unique_filename: false,
     });
-    
 
     // Remove local temp file
     fs.unlinkSync(req.file.path);
@@ -154,10 +185,17 @@ export const replaceLogo = async (req, res) => {
     await admin.save();
     console.log("saved");
 
-    res.status(200).json({ message: "Logo updated successfully", logo: admin.businessInfo.logo });
+    res
+      .status(200)
+      .json({
+        message: "Logo updated successfully",
+        logo: admin.businessInfo.logo,
+      });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to update logo", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update logo", error: err.message });
   }
 };
 
@@ -165,7 +203,7 @@ export const getBusinessInfo = async (req, res) => {
   try {
     // Find the admin with role 'Admin'
     const admin = await Admin.findOne({}).select("businessInfo");
-    
+
     if (!admin) {
       return res.status(404).json({ message: "Info not found" });
     }
