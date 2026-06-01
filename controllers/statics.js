@@ -55,7 +55,7 @@ export const getCategoryImage = async (req, res) => {
       header: images.filter((img) => img.featured === "header"),
     };
 
-    return res.status(200).json({ count: grouped.length, grouped });
+    return res.status(200).json({ count: grouped.length, grouped, category });
   } catch (err) {
     console.error(err);
     res.status(500).json({
