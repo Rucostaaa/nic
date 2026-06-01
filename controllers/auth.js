@@ -4,6 +4,7 @@ import Admin  from'../models/Admin.js';
 export const loginAdmin=async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(username);
     
     const admin = await Admin.findOne({ username });
     

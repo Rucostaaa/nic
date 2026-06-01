@@ -1,16 +1,15 @@
-import Service from '../models/Service.js'; // your schema
+import Service from "../models/Service.js";
 
 // ================= GET ALL =================
 export const getAllCategories = async (req, res) => {
   try {
-    
-    const services = await Service.find({ status: { $ne: 'deleted' } }); // skip deleted    
-    console.log("services",services);
+    const services = await Service.find({ status: { $ne: "deleted" } }); // skip deleted
+    console.log("services", services);
 
     res.status(200).json(services);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error while fetching categories' });
+    res.status(500).json({ message: "Server error while fetching categories" });
   }
 };
 
@@ -19,29 +18,31 @@ export const getSingleCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const service = await Service.findById(id);
-    if (!service || service.status === 'deleted') {
-      return res.status(404).json({ message: 'Category not found' });
+    if (!service || service.status === "deleted") {
+      return res.status(404).json({ message: "Category not found" });
     }
     res.status(200).json(service);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error while fetching category' });
+    res.status(500).json({ message: "Server error while fetching category" });
   }
 };
 export const createCategory = async (req, res) => {
   try {
-    const { title, slug, texts } = req.body;
-    console.log("req.body", req.body);
+    const { title, slug, texts, services } = req.body;
 
     // Validation
     if (!title || !slug || !texts) {
-      return res.status(400).json({ message: "Title, slug, and texts are required" });
+      return res
+        .status(400)
+        .json({ message: "Title, slug, and texts are required" });
     }
 
     // Ensure texts structure matches the schema
     const validatedTexts = {
       title: texts.title || "",
       textCard: texts.textCard || "",
+      services: services,
       textGallery: Array.isArray(texts.textGallery) ? texts.textGallery : [""],
     };
 
@@ -65,22 +66,22 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, texts, status } = req.body;
+    const { title, texts, status, services } = req.body;
 
     const updatedService = await Service.findByIdAndUpdate(
       id,
-      { title, texts, status },
-      { new: true, runValidators: true }
+      { title, texts, status, services },
+      { new: true, runValidators: true },
     );
 
     if (!updatedService) {
-      return res.status(404).json({ message: 'Category not found' });
+      return res.status(404).json({ message: "Category not found" });
     }
 
     res.status(200).json(updatedService);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error while updating category' });
+    res.status(500).json({ message: "Server error while updating category" });
   }
 };
 
@@ -92,17 +93,19 @@ export const deleteCategory = async (req, res) => {
     // Soft delete: mark as deleted
     const deletedService = await Service.findByIdAndUpdate(
       id,
-      { status: 'deleted' },
-      { new: true }
+      { status: "deleted" },
+      { new: true },
     );
 
     if (!deletedService) {
-      return res.status(404).json({ message: 'Category not found' });
+      return res.status(404).json({ message: "Category not found" });
     }
 
-    res.status(200).json({ message: 'Category deleted', category: deletedService });
+    res
+      .status(200)
+      .json({ message: "Category deleted", category: deletedService });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error while deleting category' });
+    res.status(500).json({ message: "Server error while deleting category" });
   }
 };
