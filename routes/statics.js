@@ -8,6 +8,7 @@ import {
   editImage,
   replaceLogo,
   getDashboardData,
+  getImagesByCategory,
 } from "../controllers/statics.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.put("/image/:id", upload.single("image"), editImage);
 
 // Get images by category
 router.get("/images/:category", getCategoryImage);
+router.get("/imagesByCategory/:category", getImagesByCategory);
 
 // Delete image
 router.delete("/image/:id", deleteImage);

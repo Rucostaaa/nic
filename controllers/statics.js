@@ -3,8 +3,6 @@ import fs from "fs";
 import Image from "../models/Image.js";
 import dotenv from "dotenv";
 import Admin from "../models/Admin.js";
-import Service from "../models/Service.js";
-
 dotenv.config();
 
 cloudinary.config({
@@ -42,28 +40,17 @@ export const uploadImage = async (req, res) => {
   }
 };
 
-export const getCategoryImage = async (req, res) => {
+export const getImagesByCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const query = { category };
-    const images = await Image.find(query);
-    // =========================
-    // GROUPED RESPONSE MODE
-    // =========================
 
-    const grouped = {
-      featured: images.filter((img) => img.featured === "featured"),
-      gallery: images.filter((img) => img.featured === "gallery"),
-      header: images.filter((img) => img.featured === "header"),
-    };
-
-    return res.status(200).json({ count: grouped.length, grouped, category });
+    const images = await Image.find({ category });
+    res.status(200).json(images);
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      message: "Failed to fetch images",
-      error: err.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch images", error: err.message });
   }
 };
 
@@ -194,26 +181,43 @@ export const getBusinessInfo = async (req, res) => {
 };
 export const getDashboardData = async (req, res) => {
   try {
-    // Run all queries in parallel (faster)
-    const [admin, services, featuredImages, iconImages] = await Promise.all([
-      Admin.findOne({}).select("businessInfo"),
-      Service.find({ status: { $ne: "deleted" } }),
-      Image.find({ featured: "featured" }).limit(15),
-      Image.find({ featured: "icon" }).limit(6),
-    ]);
-
+    // Find the admin with role 'Admin'
+    const admin = await Admin.findOne({}).select("businessInfo");
+    const services = await Service.find({ status: { $ne: "deleted" } }); // skip deleted
+    const images = await Image.find();
     if (!admin) {
       return res.status(404).json({ message: "Info not found" });
     }
 
-    return res.status(200).json({
-      businessInfo: admin.businessInfo,
-      services,
-      featuredImages,
-      iconImages,
-    });
+    res
+      .status(200)
+      .json({ businessInfo: admin.businessInfo, images, services });
   } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Error fetching business info:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+export const getCategoryImage = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const query = { category };
+    const images = await Image.find(query);
+    // =========================
+    // GROUPED RESPONSE MODE
+    // =========================
+
+    const grouped = {
+      featured: images.filter((img) => img.featured === "featured"),
+      gallery: images.filter((img) => img.featured === "gallery"),
+      header: images.filter((img) => img.featured === "header"),
+    };
+
+    return res.status(200).json({ count: grouped.length, grouped, category });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Failed to fetch images",
+      error: err.message,
+    });
   }
 };
